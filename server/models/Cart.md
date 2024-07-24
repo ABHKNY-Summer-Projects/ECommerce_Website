@@ -1,0 +1,23 @@
+```SQL
+CREATE TABLE carts (
+	cart_id SERIAL PRIMARY KEY,
+	user_id INT,
+	total DECIMAL(10,2),
+	FOREIGN KEY (user_id) REFERENCES users(user_id),
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE OR REPLACE FUNCTION update_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_users_timestamp
+BEFORE UPDATE ON carts
+FOR EACH ROW
+EXECUTE PROCEDURE update_timestamp();
+```
