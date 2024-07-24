@@ -6,14 +6,18 @@ const db = require("../models/db.js")
 
 const getUserDetails = async (req, res) => {
     try {
-        user_id = req.user.user_id
+        // TODO: add user authenticator middleware to get user_id in the method given below
+        const user_id = req.user.user_id
         const Detailquery = "SELECT * FROM users WHERE user_id = $1"
         const result = await db.query(Detailquery, [user_id])
         if(result.rows.length === 0) {
             res.status(StatusCodes.FORBIDDEN).json({error:"Error fetching user results"})
             return
         }
-        res.status(StatusCodes.OK).json({result})
+        const userInfo = result.rows[0]
+
+        delete userInfo.password
+        res.status(StatusCodes.OK).json({userInfo})
     } catch(error) {
         console.log(error.stack)
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: "Internal Server Error"})
@@ -22,6 +26,7 @@ const getUserDetails = async (req, res) => {
 
 const updateUserDetails = async (req,res) => {
     try {
+        // TODO: add user authenticator middleware to get user_id in the method given below
         const user_id = req.user.user_id
         const updated = req.body
         const {
@@ -30,17 +35,20 @@ const updateUserDetails = async (req,res) => {
             old_password,
             new_password
         } = updated
-        const userQuery = "SELECT (user_name, password) FROM users WHERE user_id = $1"
+        const userQuery = "SELECT user_name, password FROM users WHERE user_id = $1"
         const result = await db.query(userQuery, [user_id])
         
         if (result.rows.length === 0) {
             res.status(StatusCodes.NOT_FOUND).json({error:"User not found"})
             return
         }
+        console.log(result)
         const {user_name, password} = result.rows[0]
+
+        console.log(password, old_password)
         const passwordMatch = await bcrypt.compare(old_password, password)
 
-        if (!passwordMatch || user_name !== username) {
+        if (!passwordMatch) {
             res.status(StatusCodes.NOT_ACCEPTABLE).json({error:"Invalid credentials"})
             return 
         }
@@ -52,13 +60,15 @@ const updateUserDetails = async (req,res) => {
         res.status(StatusCodes.OK).json({msg : "User information updated"})
 
     } catch(error) {
-        console.log(error.stack)
-        req.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error:"Internal Server Error"})
+        console.log(error.stack) 
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error:"Internal Server Error"})
     }
 
 }
+
 const deleteUser = async (req,res) => {
     try {
+        // TODO: add user authenticator middleware to get user_id in the method given below
         const user_id = req.user.user_id
         const {user_password} = req.body
         const passwordQuery = "SELECT password FROM users WHERE user_id = $1"
@@ -68,7 +78,7 @@ const deleteUser = async (req,res) => {
             return
         }
         const password = result.rows[0].password
-        const passwordMatch = bcrypt.compare(user_password, password)
+        const passwordMatch = await bcrypt.compare(user_password, password)
         if (!passwordMatch) {
             res.status(StatusCodes.NOT_ACCEPTABLE).json({error:"Invalid credentials, can not delete account"})
             return 
@@ -76,7 +86,7 @@ const deleteUser = async (req,res) => {
 
         const deleteQuery = "UPDATE users SET status = FALSE WHERE user_id = $1"
         await db.query(deleteQuery, [user_id])
-        const cartDelete = "DELETE FROM carts WHERE user_id = $1"
+        const cartDelete = "DELETE FROM carts WHERE user_id = $1" 
         await db.query(cartDelete,[user_id])
         const wishlistDelete = "DELETE FROM wishlist WHERE user_id = $1"
         await db.query(wishlistDelete,[user_id])
@@ -85,7 +95,7 @@ const deleteUser = async (req,res) => {
 
     } catch(error) {
         console.log(error.stack)
-        req.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error:"Internal Server Error"})
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error:"Internal Server Error"})
     }
 }
 
