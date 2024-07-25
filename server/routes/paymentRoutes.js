@@ -7,4 +7,6 @@ paymentRouter.post('/verify', verifyTransaction);
 
 
 
+module.exports = paymentRouter ;
+
 
