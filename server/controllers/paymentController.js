@@ -94,9 +94,6 @@ const verifyTransaction = async (req, res) => {
 
         const payment = paymentResult.rows[0];
         
-        // Perform any necessary checks or processing related to the verified transaction
-
-        // Update payment status in the database
         const updatePaymentQuery = "UPDATE payments SET status = TRUE WHERE payment_id = $1 RETURNING *";
         const updatedPayment = await db.query(updatePaymentQuery, [payment.payment_id]);
 
