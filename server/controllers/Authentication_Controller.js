@@ -63,21 +63,23 @@ module.exports = {
         }
     },
     
+    handle_user_login: passport.authenticate('local', {
+        successRedirect: '/users/dashboard',
+        failureRedirect: '/users/login',
+        failureFlash: true
+    }),
+
     handle_user_logOut: (req, res) => {
         req.logOut((err) => {
             if (err){
                 return err;
             }
+
             req.flash('success_msg', 'You have logged out');
+            req.session.destroy();
             res.redirect('/users/login');
         })
     }, 
-
-    handle_user_login: passport.authenticate('local', {
-            successRedirect: '/users/dashboard',
-            failureRedirect: '/users/login',
-            failureFlash: true
-        }),
 
     render_home: (req, res) => {
         res.render('home');

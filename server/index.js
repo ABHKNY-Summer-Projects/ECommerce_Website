@@ -4,6 +4,9 @@ const app = express();
 // Import passport
 const passport = require("passport");
 
+// Import google Authentication configuration
+require('./utils/googleAuthConfig');
+
 // Define application port
 const PORT = process.env.PORT || 4000;
 
@@ -22,7 +25,17 @@ const checkNotAuthenticated = middlewares.checkNotAuthenticated
 // Import Authentication Controller
 const Authentication_Controller = require('./controllers/Authentication_Controller');
 
-// REMEMBER TO PUT THE ROUTES IN THEIR RESPECTIVE FOLDERS
+// Set up routes to continue with google
+app.get('/auth/google',
+  passport.authenticate('google', { scope:
+      [ 'email', 'profile' ] }
+));
+app.get( '/auth/google/callback',
+    passport.authenticate( 'google', {
+        successRedirect: '/users/dashboard',
+        failureRedirect: '/users/login'
+}));
+
 
 app.get('/', Authentication_Controller.render_home);
 
