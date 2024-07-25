@@ -9,7 +9,7 @@ const initializeTransaction = async (req, res) => {
 
         const user_id = req.user.user_id;
         // Validate the request body here
-        const { product_id, payment_type, amount } = req.body;
+        const { amount } = req.body;
 
         const randomNu = getRandomInt(1,10000);
 
