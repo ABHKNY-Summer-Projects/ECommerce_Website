@@ -1,22 +1,42 @@
 const { StatusCodes } = require("http-status-codes");
 const request = require("request-promise-native");
 const db = require("../models/db");
+const { getRandomInt } = require('./randomUtil');
+
 
 const initializeTransaction = async (req, res) => {
     try {
+
+        const user_id = req.user.user_id;
         // Validate the request body here
-        const { product_id, payment_type, amount, ...paymentDetails } = req.body;
+        const { product_id, payment_type, amount } = req.body;
+
+        const randomNu = getRandomInt(1,10000);
+
+        const trx_ref = `summer-${randomNu}`;
+
+        const userQuery = 'SELECT first_name, last_name, email, phone_number FROM users WHERE user_id = $1'
+        const userInfo = await db.query(userQuery, [user_id]);
+        const result = userInfo.rows[0];
+        const { first_name, last_name, email, phone_number} = result;
 
        
-        const callback_url = process.env.MELLA_CALLBACK; // Ensure this is defined in your environment variables
+        const callback_url = process.env.SUMMER_01_CALLBACK; // Ensure this is defined in your environment variables
 
         // Prepare the payment data
         const paymentData = {
-            ...paymentDetails,
-            product_id,
-            amount,
-            payment_type,
-            callback_url
+            customization : {
+                title : "Summer 01",
+                description : "Payment"
+            },
+            first_name: first_name,
+            last_name : last_name,
+            email : email,
+            phone_number: phone_number,
+            amount : amount,
+            callback_url : callback_url,
+            trx_ref : trx_ref,
+            currency : "ETB"
         };
 
         const options = {
@@ -26,40 +46,34 @@ const initializeTransaction = async (req, res) => {
                 Authorization: `Bearer ${process.env.PRIVATE_KEY}`,
                 "Content-Type": "application/json"
             },
-            body: paymentData,
-            json: true
+            body: JSON.stringify(paymentData),
+            
         };
 
         const paymentResponse = await request(options);
 
         // Insert payment details into the database
         const insertPaymentQuery = `
-            INSERT INTO payments (tx_ref, currency, product_id, amount, email, first_name, last_name, phone_number, callback_url, return_url, description, payment_type)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            INSERT INTO payments (tx_ref, currency, amount, email, first_name, last_name, phone_number)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *`;
 
         const insertPaymentValues = [
             paymentResponse.tx_ref,
             paymentResponse.currency,
-            product_id,
             amount,
-            paymentDetails.email,
-            paymentDetails.first_name,
-            paymentDetails.last_name,
-            paymentDetails.phone_number,
-            callback_url,
-            paymentDetails.return_url,
-            paymentDetails.customization?.description,
-            payment_type
+            paymentData.email,
+            paymentData.first_name,
+            paymentData.last_name,
+            paymentData.phone_number,
+            
         ];
 
         const insertedPayment = await db.query(insertPaymentQuery, insertPaymentValues);
 
-        // let extraInfo = {};
-
        
 
-        res.status(StatusCodes.OK).json({ message: "Payment processed successfully", paymentDetails: insertedPayment /*...extraInfo*/ });
+        res.status(StatusCodes.OK).json({ message: "Payment processed successfully", paymentDetails: insertedPayment });
 
     } catch (error) {
         console.error(error);
