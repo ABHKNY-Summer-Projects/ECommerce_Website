@@ -26,6 +26,7 @@ const initializeTransaction = async (req, res) => {
         const userQuery = 'SELECT first_name, last_name, email, phone_number FROM users WHERE user_id = $1'
         const userInfo = await db.query(userQuery, [user_id]);
         const result = userInfo.rows[0];
+        console.log(result);
         const { first_name, last_name, email, phone_number} = result;
 
        
@@ -39,11 +40,11 @@ const initializeTransaction = async (req, res) => {
             },
             first_name: first_name,
             last_name : last_name,
-            email : email,
+            email : "abdullah75farid@gmail.com",
             phone_number: phone_number,
             amount : amount,
             callback_url : callback_url,
-            tx_ref : "tx_ref-7899uo9ikonnuiooooo9dd",
+            tx_ref : "tx_ref-7899uo9ikuabcio9ddaa",
             currency : "ETB"
 
         };
@@ -60,11 +61,12 @@ const initializeTransaction = async (req, res) => {
         };
 
         const paymentResponse = await request(options);
+        
 
         // Insert payment details into the database
         const insertPaymentQuery = `
             INSERT INTO payments (tx_ref, currency, amount, email, first_name, last_name, phone_number)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING *`;
 
         const insertPaymentValues = [
@@ -80,9 +82,11 @@ const initializeTransaction = async (req, res) => {
 
         const insertedPayment = await db.query(insertPaymentQuery, insertPaymentValues);
 
+        
+
        
 
-        res.status(StatusCodes.OK).json({ message: "Payment processed successfully", paymentDetails: JSON.parse(paymentResponse.body) });
+        res.status(StatusCodes.OK).json({paymentResponse });
 
     } catch (error) {
         console.error(error);
