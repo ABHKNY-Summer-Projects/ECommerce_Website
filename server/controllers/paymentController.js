@@ -21,7 +21,7 @@ const initializeTransaction = async (req, res) => {
 
         
 
-        const trx_ref = `summer-${randomNu}`;
+        const tx_ref = `summer-${randomNu}`;
 
         const userQuery = 'SELECT first_name, last_name, email, phone_number FROM users WHERE user_id = $1'
         const userInfo = await db.query(userQuery, [user_id]);
@@ -43,8 +43,9 @@ const initializeTransaction = async (req, res) => {
             phone_number: phone_number,
             amount : amount,
             callback_url : callback_url,
-            trx_ref : trx_ref,
+            tx_ref : "tx_ref-7899uo9ikonnuiooooo9dd",
             currency : "ETB"
+
         };
 
         const options = {
@@ -91,10 +92,10 @@ const initializeTransaction = async (req, res) => {
 
 const verifyTransaction = async (req, res) => {
     try {
-        const { trx_ref } = req.query;
+        const { tx_ref } = req.query;
 
         const selectPaymentQuery = "SELECT * FROM payments WHERE tx_ref = $1";
-        const paymentResult = await db.query(selectPaymentQuery, [trx_ref]);
+        const paymentResult = await db.query(selectPaymentQuery, [tx_ref]);
 
         if (paymentResult.rows.length === 0) {
             return res.status(StatusCodes.NOT_FOUND).json({ error: "Transaction reference not found" });
