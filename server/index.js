@@ -15,6 +15,8 @@ app.get("/", (req, res) => {
     res.send("Hello World")
 })
 
+app.use("/api",paymentRouter);
+
 const port = process.env.PORT || 8080
 try {
     app.listen(port, () => {

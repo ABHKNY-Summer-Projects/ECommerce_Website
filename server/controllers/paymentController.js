@@ -1,7 +1,7 @@
 const { StatusCodes } = require("http-status-codes");
 const request = require("request-promise-native");
 const db = require("../models/db");
-const { getRandomInt } = require('./randomUtil');
+
 
 
 const initializeTransaction = async (req, res) => {
@@ -11,7 +11,15 @@ const initializeTransaction = async (req, res) => {
         // Validate the request body here
         const { amount } = req.body;
 
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
         const randomNu = getRandomInt(1,10000);
+
+        
 
         const trx_ref = `summer-${randomNu}`;
 
