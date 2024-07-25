@@ -44,7 +44,7 @@ const initializeTransaction = async (req, res) => {
             phone_number: phone_number,
             amount : amount,
             callback_url : callback_url,
-            tx_ref : "tx_ref-7899uo9ikuabcio9ddaa",
+            tx_ref : "tx_ref-7899uohu9cfrikuabcio9ddaa",
             currency : "ETB"
 
         };
@@ -83,10 +83,12 @@ const initializeTransaction = async (req, res) => {
         const insertedPayment = await db.query(insertPaymentQuery, insertPaymentValues);
 
         
+        const jsonResponse = JSON.parse(paymentResponse);
 
+        res.send(jsonResponse);
        
 
-        res.status(StatusCodes.OK).json({paymentResponse });
+       
 
     } catch (error) {
         console.error(error);
