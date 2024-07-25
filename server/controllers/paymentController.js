@@ -1,25 +1,13 @@
 const { StatusCodes } = require("http-status-codes");
 const request = require("request-promise-native");
-const db = require("./db");
+const db = require("../models/db");
 
 const initializeTransaction = async (req, res) => {
     try {
         // Validate the request body here
         const { product_id, payment_type, amount, ...paymentDetails } = req.body;
 
-        const developerQuery = "SELECT developer_id FROM products WHERE product_id = $1";
-        const developerResult = await db.query(developerQuery, [product_id]);
-        const developer_id = developerResult.rows[0].developer_id;
-
-        const keyQuery = "SELECT private_key, public_key FROM developers WHERE developer_id = $1";
-        const keyResult = await db.query(keyQuery, [developer_id]);
-
-        const { private_key, public_key } = keyResult.rows[0];
-
-        if (payment_type !== "crowdFund" && req.headers.authorization !== private_key && req.headers.authorization !== public_key) {
-            return res.status(StatusCodes.FORBIDDEN).json({ error: "Invalid Credentials" });
-        }
-
+       
         const callback_url = process.env.MELLA_CALLBACK; // Ensure this is defined in your environment variables
 
         // Prepare the payment data
@@ -27,7 +15,8 @@ const initializeTransaction = async (req, res) => {
             ...paymentDetails,
             product_id,
             amount,
-            payment_type
+            payment_type,
+            callback_url
         };
 
         const options = {
@@ -66,27 +55,11 @@ const initializeTransaction = async (req, res) => {
 
         const insertedPayment = await db.query(insertPaymentQuery, insertPaymentValues);
 
-        let extraInfo = {};
+        // let extraInfo = {};
 
-        if (payment_type === "donation") {
-            const donationQuery = `
-                INSERT INTO donations (payment_id, product_id, amount, message)
-                VALUES ($1, $2, $3, $4)
-                RETURNING *`;
+       
 
-            const donationValues = [
-                insertedPayment.payment_id,
-                product_id,
-                amount,
-                paymentDetails.customization?.description
-            ];
-
-            await db.query(donationQuery, donationValues);
-
-            extraInfo = { donationInfo: "Donation successfully recorded" };
-        }
-
-        res.status(StatusCodes.OK).json({ message: "Payment processed successfully", paymentDetails: insertedPayment, ...extraInfo });
+        res.status(StatusCodes.OK).json({ message: "Payment processed successfully", paymentDetails: insertedPayment /*...extraInfo*/ });
 
     } catch (error) {
         console.error(error);
