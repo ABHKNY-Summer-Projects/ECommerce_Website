@@ -7,7 +7,7 @@ const db = require("../models/db");
 const initializeTransaction = async (req, res) => {
     try {
 
-        const user_id = req.user.user_id;
+        const user_id = 2;
         // Validate the request body here
         const { amount } = req.body;
 
@@ -81,7 +81,7 @@ const initializeTransaction = async (req, res) => {
 
        
 
-        res.status(StatusCodes.OK).json({ message: "Payment processed successfully", paymentDetails: insertedPayment });
+        res.status(StatusCodes.OK).json({ message: "Payment processed successfully", paymentDetails: JSON.parse(paymentResponse.body) });
 
     } catch (error) {
         console.error(error);
