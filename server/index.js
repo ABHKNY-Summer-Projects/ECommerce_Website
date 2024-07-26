@@ -2,7 +2,7 @@ const express = require("express")
 const cors = require("cors")
 const dotenv = require("dotenv")
 const productRouter = require('./routes/products')
-const seaarchRouter = require('./routes/searchaProduct')
+const searchRouter = require('./routes/searchaProduct')
 dotenv.config()
 const app = express()
 
@@ -12,7 +12,7 @@ app.use(cors())
 
 
 app.use('/products', productRouter);
-app.use('/search', seaarchRouter);
+app.use('/search', searchRouter);
 
 
 app.get("/", (req, res) => {
