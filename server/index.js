@@ -1,17 +1,22 @@
 const express = require("express");
 const app = express();
-
-// Import passport
+const cors = require('cors');
 const passport = require("passport");
+const PORT = process.env.PORT || 4000;
+
+app.use(express.json());
 
 // Import google Authentication configuration
 require('./utils/googleAuthConfig');
 
-// Define application port
-const PORT = process.env.PORT || 4000;
-
 // Import authentication middlewares
 const middlewares = require('./middleware/Authentication_Middlewares')
+
+// Setup CORS middleware for react apps
+app.use(cors({
+  origin: 'http://localhost:5173', // Route for front-end app
+  credentials: true
+}));
 
 // Incorporate middlewares
 middlewares.setViewEngine(app);
@@ -19,6 +24,8 @@ middlewares.urlencoded(app);
 middlewares.flash(app);
 middlewares.initializeSession(app);
 middlewares.initializePassport(app, passport);
+
+// The following middleware currently not used but put for later use
 const checkAuthenticated = middlewares.checkAuthenticated
 const checkNotAuthenticated = middlewares.checkNotAuthenticated
 
@@ -32,19 +39,13 @@ app.get('/auth/google',
 ));
 app.get( '/auth/google/callback',
     passport.authenticate( 'google', {
-        successRedirect: '/users/dashboard',
-        failureRedirect: '/users/login'
+        successRedirect: 'DASHBOARD PATH', 
+        failureRedirect: '/api/users/login'
 }));
 
-
-app.get('/', Authentication_Controller.render_home);
-
-app.get('/users/login', checkAuthenticated, Authentication_Controller.render_user_login);
-app.get('/users/signup', checkAuthenticated, Authentication_Controller.render_user_signup);
-app.get('/users/dashboard', checkNotAuthenticated, Authentication_Controller.render_user_dashboard);
-app.get('/users/logout', Authentication_Controller.handle_user_logOut);
-app.post('/users/signup', Authentication_Controller.handle_user_signUp);
-app.post('/users/login', Authentication_Controller.handle_user_login);
+app.post('/api/users/signup', Authentication_Controller.handle_user_signUp);
+app.post('/api/users/login', Authentication_Controller.handle_user_login);
+app.get('/api/users/logout', Authentication_Controller.handle_user_logOut);
 
 app.listen(PORT, () => {
     console.log(`server running on port ${PORT}`);

@@ -2,13 +2,23 @@ require('dotenv').config();
 
 const { Pool } = require('pg');
 
-const isProduction = process.env.NODE_ENV === 'production';
+const connectionString = "postgresql://summer01_user:rkfjpGTSX1aLYzQydXDnWBA27wB7xSfN@dpg-cqh3aaaju9rs73eff2u0-a.oregon-postgres.render.com/summer01"
+client = new Pool({
+    max: 5,
+    min: 2,
+    idleTimeoutMillis: 600000,
+    connectionString: connectionString,
+    ssl : {
+       require: true
+    }
+})
+client.connect()
+.then(()=>{
+    console.log("Database connected successfully")
+}
+)
+.catch((err) => {
+    console.error("Error connecting to the database: ", err.stack)
+})
 
-const connectionString = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}`;
-
-const pool = new Pool({
-    connectionString: isProduction ? process.env.DATABASE_URL: connectionString
-});
-
-module.exports = { pool };
-
+module.exports = client;

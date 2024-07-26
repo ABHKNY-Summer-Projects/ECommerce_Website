@@ -24,7 +24,7 @@ module.exports = {
         }
     
         if(errors.length > 0){
-            res.render('signup', {errors})
+            res.json({errors: errors});
         }
         else{
             // Form validation successful
@@ -40,8 +40,9 @@ module.exports = {
                     }
     
                     if (results.rows.length > 0){
+                        // Account already registered
                         errors.push({message: "Email Already Registered"});
-                        res.render('signup', { errors });
+                        res.json({errors: errors});
                     }else{
                         // User Registry
                         pool.query(
@@ -52,9 +53,7 @@ module.exports = {
                                 if (err){
                                     throw err
                                 }
-                                console.log(results.rows);
-                                req.flash('success_msg', 'You are now registered. Please Log in');
-                                res.redirect('/users/login');
+                                res.json({success_msg: 'You are now registered. Please Log in'});
                             }
                         )
                     }
@@ -63,11 +62,22 @@ module.exports = {
         }
     },
     
-    handle_user_login: passport.authenticate('local', {
-        successRedirect: '/users/dashboard',
-        failureRedirect: '/users/login',
-        failureFlash: true
-    }),
+    handle_user_login: (req, res, next) => {
+        passport.authenticate('local', (err, user, info) => {
+            if (err) {
+                return res.json({ status: 'error', message: err });
+            }
+            if (!user) {
+                return res.json({ status: 'error', message: info.message });
+            }
+            req.logIn(user, (err) => {
+                if (err) {
+                    return res.json({ status: 'error', message: err });
+                }
+                return res.json({ status: 'success', message: 'Logged in', user: req.user });
+            });
+        })(req, res, next);
+    },
 
     handle_user_logOut: (req, res) => {
         req.logOut((err) => {
@@ -75,26 +85,8 @@ module.exports = {
                 return err;
             }
 
-            req.flash('success_msg', 'You have logged out');
             req.session.destroy();
-            res.redirect('/users/login');
+            res.json({success_msg: 'You have successfully logged out'});
         })
-    }, 
-
-    render_home: (req, res) => {
-        res.render('home');
-    },
-
-    render_user_login: (req, res) => {
-        res.render('login');
-    },
-
-    render_user_signup: (req, res) => {
-        res.render('signup');
-    },
-
-    render_user_dashboard: (req, res) => {
-        res.render('Dashboard',  {user: req.user.name});
     }
-
 }
