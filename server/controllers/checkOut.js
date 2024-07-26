@@ -1,15 +1,8 @@
 // checkout.js
 
-const express = require('express');
-const bodyParser = require('body-parser');
 const pool = require('./db');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(bodyParser.json());
-
-app.post('/checkout', async (req, res) => {
+async function processCheckout(req, res) {
   const { first_name, last_name, phone, email, items, paymentMethod } = req.body;
 
   try {
@@ -39,8 +32,6 @@ app.post('/checkout', async (req, res) => {
     console.error('Error placing order', err);
     res.status(500).send({ message: 'Error placing order' });
   }
-});
+}
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+module.exports = { processCheckout };
