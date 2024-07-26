@@ -2,29 +2,29 @@ const passport = require("passport");
 const bcrypt = require('bcrypt');
 
 // Import pool to interact with DB
-const { pool } = require("../utils/dbconfig");
+const pool = require("../utils/dbconfig");
 
 module.exports = {
 
     handle_user_signUp: async (req, res) => {
         let {name, email, password, password2} = req.body;
     
-        let errors = [];
+        let messages = [];
     
         if (!name || !email || !password || !password2){
-            errors.push({message: "Please Enter All Fields"})
+            messages.push({message: "Please Enter All Fields"})
         };
     
         if (password.length < 6){
-            errors.push({message: "Your password is too short"})
+            messages.push({message: "Your password is too short"})
         }
     
         if (password !== password2){
-            errors.push({message: "Passowords Don't Match"})
+            messages.push({message: "Passowords Don't Match"})
         }
     
-        if(errors.length > 0){
-            res.json({errors: errors});
+        if(messages.length > 0){
+            res.json({messages: messages});
         }
         else{
             // Form validation successful
@@ -41,8 +41,8 @@ module.exports = {
     
                     if (results.rows.length > 0){
                         // Account already registered
-                        errors.push({message: "Email Already Registered"});
-                        res.json({errors: errors});
+                        messages.push({message: "Email Already Registered"});
+                        res.json({messages: messages});
                     }else{
                         // User Registry
                         pool.query(
@@ -53,7 +53,8 @@ module.exports = {
                                 if (err){
                                     throw err
                                 }
-                                res.json({success_msg: 'You are now registered. Please Log in'});
+                                messages.push({message: "You are now registered. Please Log in"});
+                                res.json({messages: messages});
                             }
                         )
                     }

@@ -21,7 +21,6 @@ app.use(cors({
 // Incorporate middlewares
 middlewares.setViewEngine(app);
 middlewares.urlencoded(app);
-middlewares.flash(app);
 middlewares.initializeSession(app);
 middlewares.initializePassport(app, passport);
 
