@@ -2,7 +2,9 @@ const express = require("express");
 const app = express();
 const cors = require('cors');
 const passport = require("passport");
-const PORT = process.env.PORT || 4000;
+const dotenv = require("dotenv");
+const userRouter = require("./routes/userRouter");
+dotenv.config();
 
 app.use(express.json());
 
@@ -32,6 +34,13 @@ const checkNotAuthenticated = middlewares.checkNotAuthenticated
 const Authentication_Controller = require('./controllers/Authentication_Controller');
 
 // Set up routes to continue with google
+
+app.get("/", (req, res) => {
+    console.log(req.body);
+    res.send("Hello World");
+});
+
+app.use("/api/users", userRouter)
 app.get('/auth/google',
   passport.authenticate('google', { scope:
       [ 'email', 'profile' ] }
@@ -46,7 +55,13 @@ app.post('/api/users/signup', Authentication_Controller.handle_user_signUp);
 app.post('/api/users/login', Authentication_Controller.handle_user_login);
 app.get('/api/users/logout', Authentication_Controller.handle_user_logOut);
 
-app.listen(PORT, () => {
-    console.log(`server running on port ${PORT}`);
-});
+const port = process.env.PORT || 8080;
+try {
+    app.listen(port, () => {
+        console.log(`App listening on port: ${port}`);
+    });
+} catch (error) {
+    console.log(error);
+    process.exit(1);
+}
 
