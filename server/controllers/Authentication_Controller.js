@@ -2,7 +2,7 @@ const passport = require("passport");
 const bcrypt = require('bcrypt');
 
 // Import pool to interact with DB
-const { pool } = require("../utils/dbconfig");
+const { pool } = require("../models/db");
 
 module.exports = {
 

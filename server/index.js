@@ -61,7 +61,8 @@ try {
     app.listen(port, () => {
         console.log(`App listening on port: ${port}`);
     });
-} catch (error) {
+}
+ catch (error) {
     console.log(error);
     process.exit(1);
 }

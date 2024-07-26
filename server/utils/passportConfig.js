@@ -1,5 +1,5 @@
 const LocalStrategy = require("passport-local").Strategy;
-const { pool } = require('./dbconfig');
+const { pool } = require('../models/db');
 const bycrypt = require("bcrypt");
 
 const authenticateUser = (email, password, done) => {
