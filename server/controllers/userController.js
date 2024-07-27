@@ -7,7 +7,7 @@ const db = require("../models/db.js")
 const getUserDetails = async (req, res) => {
     try {
         // TODO: add user authenticator middleware to get user_id in the method given below
-        const user_id = req.user.user_id
+        const user_id = req.session.passport.user
         const Detailquery = "SELECT * FROM users WHERE user_id = $1"
         const result = await db.query(Detailquery, [user_id])
         if(result.rows.length === 0) {
@@ -27,7 +27,7 @@ const getUserDetails = async (req, res) => {
 const updateUserDetails = async (req,res) => {
     try {
         // TODO: add user authenticator middleware to get user_id in the method given below
-        const user_id = req.user.user_id
+        const user_id = req.session.passport.user
         const updated = req.body
         const {
             username,
