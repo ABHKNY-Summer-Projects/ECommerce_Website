@@ -30,12 +30,14 @@ const updateUserDetails = async (req,res) => {
         const user_id = req.session.passport.user
         const updated = req.body
         const {
-            username,
+            first_name,
+            last_name,
             email,
+            address,
             old_password,
             new_password
         } = updated
-        const userQuery = "SELECT user_name, password FROM users WHERE user_id = $1"
+        const userQuery = "SELECT password FROM users WHERE user_id = $1"
         const result = await db.query(userQuery, [user_id])
         
         if (result.rows.length === 0) {
@@ -43,7 +45,7 @@ const updateUserDetails = async (req,res) => {
             return
         }
         console.log(result)
-        const {user_name, password} = result.rows[0]
+        const {password} = result.rows[0]
 
         console.log(password, old_password)
         const passwordMatch = await bcrypt.compare(old_password, password)
@@ -53,8 +55,8 @@ const updateUserDetails = async (req,res) => {
             return 
         }
         const newPassHashed = await bcrypt.hash(new_password, 10)
-        const updateQuery = "UPDATE users SET user_name = $1, email = $2, password = $3 WHERE user_id = $4"
-        const updateResult = await db.query(updateQuery, [username, email, newPassHashed, user_id])
+        const updateQuery = "UPDATE users SET first_name = $1, last_name = $2, email = $3, password = $4, address = $5 WHERE user_id = $6"
+        const updateResult = await db.query(updateQuery, [first_name, last_name, email, newPassHashed, address, user_id])
 
         const successResult = updateResult.rows[0]
         res.status(StatusCodes.OK).json({msg : "User information updated"})
@@ -69,7 +71,7 @@ const updateUserDetails = async (req,res) => {
 const deleteUser = async (req,res) => {
     try {
         // TODO: add user authenticator middleware to get user_id in the method given below
-        const user_id = req.user.user_id
+        const user_id = req.session.passport.user
         const {user_password} = req.body
         const passwordQuery = "SELECT password FROM users WHERE user_id = $1"
         const result = await db.query(passwordQuery, [user_id])

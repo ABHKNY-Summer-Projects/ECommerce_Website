@@ -41,5 +41,4 @@ const queryRunner = async (queryString) => {
     const result = await client.query(queryString)
     console.log(result.rows)
 }
-queryRunner(`SELECT * FROM products`)
 module.exports = client;
