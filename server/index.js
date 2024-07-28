@@ -15,10 +15,7 @@ require('./utils/googleAuthConfig');
 const middlewares = require('./middleware/Authentication_Middlewares')
 
 // Setup CORS middleware for react apps
-app.use(cors({
-  origin: 'http://localhost:5173', // Route for front-end app
-  credentials: true
-}));
+app.use(cors());
 
 // Incorporate middlewares
 middlewares.setViewEngine(app);

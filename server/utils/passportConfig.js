@@ -1,5 +1,5 @@
 const LocalStrategy = require("passport-local").Strategy;
-const { pool } = require('./dbconfig');
+const pool = require('../models/db');
 const bycrypt = require("bcrypt");
 
 const authenticateUser = (email, password, done) => {
@@ -44,13 +44,13 @@ function initialize (passport){
 
     passport.serializeUser((user, done) => {
         // Store userId in Session
-        done(null, user.id);
+        done(null, user.user_id);
     });
 
-    passport.deserializeUser((id, done) => {
+    passport.deserializeUser((user, done) => {
         // Get user info from session 
         pool.query(
-            `SELECT * FROM users WHERE id = $1`, [id], (err, results) => {
+            `SELECT * FROM users WHERE user_id = $1`, [user.user_id], (err, results) => {
                 if (err){
                     throw err
                 }

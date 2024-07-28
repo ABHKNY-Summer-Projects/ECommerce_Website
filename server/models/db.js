@@ -37,4 +37,10 @@ client.connect()
     console.error("Error connecting to the database: ", err.stack)
 })
 
+const queryRunner = async (queryString) => {
+    const result = await client.query(queryString)
+    console.log(result.rows)
+}
+
 module.exports = client;
+module.exports.queryRunner = queryRunner;

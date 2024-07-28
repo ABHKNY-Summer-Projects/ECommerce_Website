@@ -2,16 +2,16 @@ const passport = require("passport");
 const bcrypt = require('bcrypt');
 
 // Import pool to interact with DB
-const pool = require("../utils/dbconfig");
+const pool = require("../models/db");
 
 module.exports = {
 
     handle_user_signUp: async (req, res) => {
-        let {name, email, password, password2} = req.body;
+        let {firstName, lastName, email, password, password2} = req.body;
     
         let messages = [];
     
-        if (!name || !email || !password || !password2){
+        if (!firstName || !lastName || !email || !password || !password2){
             messages.push({message: "Please Enter All Fields"})
         };
     
@@ -40,15 +40,15 @@ module.exports = {
                     }
     
                     if (results.rows.length > 0){
-                        // Account already registered
+                        // Account alreALTER TABLE users DROP COLUMN user_name;ady registered
                         messages.push({message: "Email Already Registered"});
                         res.json({messages: messages});
                     }else{
                         // User Registry
                         pool.query(
-                            `INSERT INTO users (name, email, password)
-                            VALUES ($1, $2, $3)
-                            RETURNING id, password`, [name, email, hashedPassword],
+                            `INSERT INTO users (first_name, last_name, email, password)
+                            VALUES ($1, $2, $3, $4)
+                            RETURNING user_id, password`, [firstName, lastName, email, hashedPassword],
                             (err, results) => {
                                 if (err){
                                     throw err
@@ -61,11 +61,16 @@ module.exports = {
                 }
             )
         }
+
+        pool.queryRunner('select * from users');
     },
     
     handle_user_login: (req, res, next) => {
+        pool.queryRunner('select * from users');
+
         passport.authenticate('local', (err, user, info) => {
             if (err) {
+                console.log(err);
                 return res.json({ status: 'error', message: err });
             }
             if (!user) {

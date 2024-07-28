@@ -16,7 +16,7 @@ function Login(){
     const handleLogin = (e) => {
         e.preventDefault();
 
-        fetch('http://localhost:4000/api/users/login', {
+        fetch('http://localhost:8080/api/users/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
@@ -24,17 +24,15 @@ function Login(){
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                console.log(data.user);
-                navigate('/dashboard', { state: { name: data.user.name } });
+                navigate('/dashboard', { state: { name: data.user.first_name } });
             } else {
-                console.log(data.message);
                 setLoginError(data.message);
             }
         });
     };
 
     const handleGoogleSignIn = (e) => {
-        window.location.href = 'http://localhost:4000/auth/google';
+        window.location.href = 'http://localhost:8080/auth/google';
     };
 
     return(
@@ -47,7 +45,7 @@ function Login(){
             <p>Enter your details below</p>
 
             <div className="auth-errors-list">
-                <span>{loginError}</span>
+                <span>{loginError.message}</span>
             </div>
 
             <input 

@@ -5,7 +5,8 @@ import {auth_image, googleIcon} from '../assets/assets'
 import '../styles/auth.css';
 
 function SignUp(){
-    const [name, setName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [password2, setPassword2] = useState('');
@@ -16,7 +17,7 @@ function SignUp(){
         event.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:4000/api/users/signup', { name, email, password, password2 });
+            const response = await axios.post('http://localhost:8080/api/users/signup', { firstName, lastName, email, password, password2 });
             setFormMessages(response.data.messages);
             } 
         catch (error) {
@@ -25,7 +26,7 @@ function SignUp(){
     }
 
     const handleGoogleSignIn = (e) => {
-        window.location.href = 'http://localhost:4000/auth/google';
+        window.location.href = 'http://localhost:8080/auth/google';
     };
 
     return(
@@ -47,11 +48,18 @@ function SignUp(){
 
             <input 
                 type="text" 
-                value={ name } 
-                placeholder="Name" 
-                onChange={(e) => setName(e.target.value)} 
+                value={ firstName } 
+                placeholder="First Name" 
+                onChange={(e) => setFirstName(e.target.value)} 
             />
         
+            <input 
+                type="text" 
+                value={ lastName } 
+                placeholder="Last Name" 
+                onChange={(e) => setLastName(e.target.value)} 
+            />
+
             <input 
                 type="text" 
                 value={ email } 
