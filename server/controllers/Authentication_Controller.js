@@ -24,7 +24,7 @@ module.exports = {
         }
     
         if(messages.length > 0){
-            res.json({messages: messages});
+            return res.json({ status: 'error', messages: messages});
         }
         else{
             // Form validation successful
@@ -40,10 +40,10 @@ module.exports = {
                     }
     
                     if (results.rows.length > 0){
-                        // Account alreALTER TABLE users DROP COLUMN user_name;ady registered
                         messages.push({message: "Email Already Registered"});
-                        res.json({messages: messages});
-                    }else{
+                        return res.json({ status: 'error', messages: messages});
+                    }
+                    else{
                         // User Registry
                         pool.query(
                             `INSERT INTO users (first_name, last_name, email, password)
@@ -53,8 +53,11 @@ module.exports = {
                                 if (err){
                                     throw err
                                 }
-                                messages.push({message: "You are now registered. Please Log in"});
-                                res.json({messages: messages});
+
+                                // signup successful
+                                messages.push({message: "Registration Successful. Please Log in."})
+                                return res.json({ status: 'success', messages: messages});
+
                             }
                         )
                     }
@@ -62,11 +65,9 @@ module.exports = {
             )
         }
 
-        pool.queryRunner('select * from users');
     },
     
     handle_user_login: (req, res, next) => {
-        pool.queryRunner('select * from users');
 
         passport.authenticate('local', (err, user, info) => {
             if (err) {
@@ -80,7 +81,9 @@ module.exports = {
                 if (err) {
                     return res.json({ status: 'error', message: err });
                 }
-                return res.json({ status: 'success', message: 'Logged in', user: req.user });
+
+                // Login successful
+                return res.json({ status: 'success', message: 'Login successful' });                
             });
         })(req, res, next);
     },
@@ -94,5 +97,13 @@ module.exports = {
             req.session.destroy();
             res.json({success_msg: 'You have successfully logged out'});
         })
-    }
+    },
+
+    checkAuthenticated: (req, res) => {
+        if (req.isAuthenticated()) {
+          res.json(req.user);
+        } else {
+          res.sendStatus(401);
+        }
+    }    
 }

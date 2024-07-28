@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 import {auth_image, googleIcon} from '../assets/assets'
 import '../styles/auth.css';
@@ -13,26 +14,29 @@ function Login(){
 
     const navigate = useNavigate();
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
 
-        fetch('http://localhost:8080/api/users/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        })
-        .then(response => response.json())
-        .then(data => {
+        try{    
+            const response = await axios.post('http://localhost:8080/api/users/login', { email, password }, {withCredentials: true})
+
+            const data = response.data;
             if (data.status === 'success') {
-                navigate('/dashboard', { state: { name: data.user.first_name } });
-            } else {
+                navigate('/dashboard');
+            } 
+            else {
                 setLoginError(data.message);
             }
-        });
+        }
+
+        catch(err) {
+            console.error(err);
+            setLoginError('An error occurred during login');
+        }
     };
 
-    const handleGoogleSignIn = (e) => {
-        window.location.href = 'http://localhost:8080/auth/google';
+    const handleGoogleSignIn = async (e) => {
+        window.location.href = 'http://localhost:8080/api/auth/google';
     };
 
     return(
@@ -45,7 +49,7 @@ function Login(){
             <p>Enter your details below</p>
 
             <div className="auth-errors-list">
-                <span>{loginError.message}</span>
+                <span>{loginError && loginError.message}</span>
             </div>
 
             <input 

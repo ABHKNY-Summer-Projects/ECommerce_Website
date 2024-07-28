@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+
 import axios from 'axios';
 
 import {auth_image, googleIcon} from '../assets/assets'
@@ -13,20 +15,26 @@ function SignUp(){
 
     const [formMessages, setFormMessages] = useState([]);
 
+    const navigate = useNavigate();
+
     const handleRegister = async (event) => {
         event.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:8080/api/users/signup', { firstName, lastName, email, password, password2 });
+            const response = await axios.post('http://localhost:8080/api/users/signup', { firstName, lastName, email, password, password2 }, {withCredentials: true});
+            
+            const data = response.data;
             setFormMessages(response.data.messages);
-            } 
+            
+        } 
         catch (error) {
             console.error(error);
         }
+
     }
 
-    const handleGoogleSignIn = (e) => {
-        window.location.href = 'http://localhost:8080/auth/google';
+    const handleGoogleSignIn = async (e) => {
+        window.location.href = 'http://localhost:8080/api/auth/google';
     };
 
     return(
