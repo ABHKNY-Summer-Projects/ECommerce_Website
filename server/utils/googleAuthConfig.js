@@ -1,13 +1,12 @@
 const passport = require('passport');
 const GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
 require('dotenv').config()
-const { pool } = require("../models/db.js");
-
+const pool = require("../models/db");
 
 passport.use(new GoogleStrategy({
     clientID:     process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:4000/auth/google/callback",
+    callbackURL: "http://localhost:8080/auth/google/callback",
     passReqToCallback   : true
   },
   function(request, accessToken, refreshToken, profile, done) {
@@ -21,7 +20,7 @@ passport.use(new GoogleStrategy({
             done(null, results.rows[0]);
         } else {
             // User doesn't exist, create new user
-            pool.query('INSERT INTO users (name, email, googleId) VALUES ($1, $2, $3) RETURNING *', [profile.displayName, profile.emails[0].value, profile.id], (err, results) => {
+            pool.query('INSERT INTO users (first_name, last_name, email, googleId) VALUES ($1, $2, $3, $4) RETURNING *', [profile.given_name, profile.family_name, profile.email, profile.id], (err, results) => {
                 if (err) {
                     throw err;
                 }
@@ -39,5 +38,12 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser((user, done) => {
-    done(null, user);
+    pool.query(
+        `SELECT * FROM users WHERE user_id = $1`, [user.user_id], (err, results) => {
+            if (err){
+                throw err
+            }
+            return done(null, results.rows[0]);
+        }
+    )
 });

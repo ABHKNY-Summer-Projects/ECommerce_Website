@@ -22,15 +22,16 @@ require('./utils/googleAuthConfig');
 const middlewares = require('./middleware/Authentication_Middlewares')
 
 // Setup CORS middleware for react apps
-app.use(cors({
-  origin: 'http://localhost:5173', // Route for front-end app
-  credentials: true
-}));
+app.use(cors({ 
+    origin: 'http://localhost:5173', 
+    credentials: true 
+    }
+));
+
 
 // Incorporate middlewares
 middlewares.setViewEngine(app);
 middlewares.urlencoded(app);
-middlewares.flash(app);
 middlewares.initializeSession(app);
 middlewares.initializePassport(app, passport);
 
@@ -53,19 +54,24 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/users", userRouter)
-app.get('/auth/google',
+
+// Handle google signin
+app.get('/api/auth/google',
   passport.authenticate('google', { scope:
       [ 'email', 'profile' ] }
 ));
-app.get( '/auth/google/callback',
-    passport.authenticate( 'google', {
-        successRedirect: 'DASHBOARD PATH', 
-        failureRedirect: '/api/users/login'
-}));
+app.get('/auth/google/callback', 
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  function(req, res) {
+    res.redirect('http://localhost:5173/dashboard');
+  }
+);
 
 app.post('/api/users/signup', Authentication_Controller.handle_user_signUp);
 app.post('/api/users/login', Authentication_Controller.handle_user_login);
-app.get('/api/users/logout', Authentication_Controller.handle_user_logOut);
+app.post('/api/users/logout', Authentication_Controller.handle_user_logOut);
+
+app.get('/api/user', Authentication_Controller.checkAuthenticated)
 
 const port = process.env.PORT || 8080;
 try {

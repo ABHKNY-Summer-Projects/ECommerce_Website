@@ -3,27 +3,6 @@ const bcrypt = require("bcrypt")
 const db = require("../models/db.js")
 
 
-
-const getUserDetails = async (req, res) => {
-    try {
-        // TODO: add user authenticator middleware to get user_id in the method given below
-        const user_id = req.session.passport.user
-        const Detailquery = "SELECT * FROM users WHERE user_id = $1"
-        const result = await db.query(Detailquery, [user_id])
-        if(result.rows.length === 0) {
-            res.status(StatusCodes.FORBIDDEN).json({error:"Error fetching user results"})
-            return
-        }
-        const userInfo = result.rows[0]
-
-        delete userInfo.password
-        res.status(StatusCodes.OK).json({userInfo})
-    } catch(error) {
-        console.log(error.stack)
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({error: "Internal Server Error"})
-    }
-} 
-
 const updateUserDetails = async (req,res) => {
     try {
         // TODO: add user authenticator middleware to get user_id in the method given below
@@ -99,4 +78,4 @@ const deleteUser = async (req,res) => {
     }
 }
 
-module.exports = {getUserDetails, updateUserDetails, deleteUser}
+module.exports = {updateUserDetails, deleteUser}
