@@ -2,10 +2,11 @@ const {StatusCodes} = require("http-status-codes")
 const bcrypt = require("bcrypt")
 const db = require("../models/db.js")
 
+
 const updateUserDetails = async (req,res) => {
     try {
         // TODO: add user authenticator middleware to get user_id in the method given below
-        const user_id = req.user.user_id
+        const user_id = req.session.passport.user
         const updated = req.body
         const {
             username,

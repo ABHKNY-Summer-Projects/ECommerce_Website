@@ -1,12 +1,19 @@
-const express = require("express");
-const app = express();
-const cors = require('cors');
+const express = require("express")
+const cors = require("cors")
+const dotenv = require("dotenv")
+const productRouter = require('./routes/products')
+const searchRouter = require('./routes/searchaProduct')
 const passport = require("passport");
-const dotenv = require("dotenv");
 const userRouter = require("./routes/userRouter");
-dotenv.config();
+dotenv.config()
 
-app.use(express.json());
+
+const app = express()
+
+app.use(express.json())
+app.use(express.urlencoded({extended: false}))
+app.use(cors())
+
 
 // Import google Authentication configuration
 require('./utils/googleAuthConfig');
@@ -36,6 +43,10 @@ const checkNotAuthenticated = middlewares.checkNotAuthenticated
 const Authentication_Controller = require('./controllers/Authentication_Controller');
 
 // Set up routes to continue with google
+
+app.use('/products', productRouter);
+app.use('/search', searchRouter);
+
 
 app.get("/", (req, res) => {
     console.log(req.body);
@@ -67,7 +78,8 @@ try {
     app.listen(port, () => {
         console.log(`App listening on port: ${port}`);
     });
-} catch (error) {
+}
+ catch (error) {
     console.log(error);
     process.exit(1);
 }
