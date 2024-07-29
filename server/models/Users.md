@@ -1,0 +1,29 @@
+```SQL
+CREATE TABLE users (
+	user_id SERIAL PRIMARY KEY,
+	first_name VARCHAR(255),
+	last_name VARCHAR(255),
+	user_name VARCHAR(255) NOT NULL UNIQUE,
+	email VARCHAR(255) NOT NULL UNIQUE,
+	password VARCHAR(255),
+	date_of_birth DATE,
+	phone_number VARCHAR(255),
+	address VARCHAR(255),
+	status BOOLEAN DEFAULT true,
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE OR REPLACE FUNCTION update_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_users_timestamp
+BEFORE UPDATE ON Users
+FOR EACH ROW
+EXECUTE PROCEDURE update_timestamp();
+```
