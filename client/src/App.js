@@ -1,8 +1,9 @@
-import LandingHomePage from "./pages/LandingHomePage";
+// import LandingHomePage from "./pages/LandingHomePage";
+import Header from "./components/Header";
 function App() {
   return (
     <div>
-      <LandingHomePage />
+      <Header />
     </div>
   );
 }
